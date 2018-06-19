@@ -9,7 +9,7 @@
   "activationCommands": {
     "atom-workspace": "craft3-twig:toggle"
   },
-  "repository": "https://github.com/zizther/craft2-twig",
+  "repository": "https://github.com/zizther/craft3-twig",
   "license": "MIT",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
