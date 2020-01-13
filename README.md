@@ -33,7 +33,7 @@ A port from [BarrelStrength Craft-Twig.tmbundle](https://github.com/BarrelStreng
     endblock        {% endblock %}
     endfilter       {% endfilter %}
 
-### Twig Tags, Customized for Craft (via tab trigger)
+### Twig Tags, Customised for Craft (via tab trigger)
 
     assets, assetsp          craft.assets loop
     categories, categoriesp  craft.categories loop
@@ -42,6 +42,7 @@ A port from [BarrelStrength Craft-Twig.tmbundle](https://github.com/BarrelStreng
     tags, tagsp              craft.tags loop
     users, usersp            craft.users loop
 
+    cache              {% cache %} ... {% endcache %}
     ciel               ceil()
     csrf               {{ csrfInput() }}
     exit               {% exit 404 %}
