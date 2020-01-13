@@ -27,11 +27,11 @@
   "craft.assets w/ params":
     prefix: "assetsp"
     body: '''
-      {% set assets = craft.assets.find({
+      {% set assets = craft.assets({
         sourceId:  	'${1:1}',
         kind:      	'${2:image}',
         limit: 			${3:10}
-      }) %}
+      }).all() %}
 
       {% for image in assets %}
           <img src="{{ image.url${4:('${5:thumb}')} }}" width="${6:200}" height="${7:200}" alt="{{ image.title }}">
@@ -41,10 +41,10 @@
   "craft.categories w/ params":
     prefix: "categoriesp"
     body: '''
-      {% set categories = craft.categories.find({
+      {% set categories = craft.categories({
         group:    '${1:categoryGroupHandle',
         limit:      '${2:10}'
-      }) %}
+      }).all() %}
 
       <ul>
           {% nav category in categories %}
@@ -66,6 +66,7 @@
           {% nav category in craft.categories
              .group('categoryGroupHandle',')
              .limit(10)
+             .all()
              %}
               <li>
                   <a href="{{ category.url }}">{{ category.title }}</a>
@@ -82,104 +83,104 @@
     prefix: "info"
     body: '''
       {# Access any settings in craft/config/general.php #}
-      {% if craft.config.devMode %}{% endif %}
+      {% if craft.app.config.general.devMode %}{% endif %}
 
-      {# Access settings in any config file #}
-      {{ craft.config.get('someConfigSetting', 'someConfigFile') }}
+      {# Access settings of any config #}
+      {{ craft.app.config.general.someConfigSetting }}
 
       {# General Settings #}
-      {{ craft.config.appId }}
-      {{ craft.config.cacheDuration }}
-      {{ craft.config.cacheMethod }}
-      {{ craft.config.customAsciiCharMappings }} {# array #}
-      {{ craft.config.defaultCookieDomain }}
-      {{ craft.config.devMode }}
-      {{ craft.config.environmentVariables }} {# array #}
-      {{ craft.config.isSystemOn }}
-      {{ craft.config.logDumpMethod }}
-      {{ craft.config.overridePhpSessionLocation }}
-      {{ craft.config.phpMaxMemoryLimit }}
-      {{ craft.config.runTasksAutomatically }}
-      {{ craft.config.searchIgnoreWords }} {# array #}
-      {{ craft.config.siteName }} {# can be an array #}
-      {{ craft.config.siteUrl }} {# can be an array #}
-      {{ craft.config.timezone }}
-      {{ craft.config.translationDebugOutput }}
-      {{ craft.config.useCompressedJs }}
-      {{ craft.config.useWriteFileLock }}
-      {{ craft.config.useXSendFile }}
+      {{ craft.app.config.general.appId }}
+      {{ craft.app.config.general.cacheDuration }}
+      {{ craft.app.config.general.cacheMethod }}
+      {{ craft.app.config.general.customAsciiCharMappings }} {# array #}
+      {{ craft.app.config.general.defaultCookieDomain }}
+      {{ craft.app.config.general.devMode }}
+      {{ craft.app.config.general.environmentVariables }} {# array #}
+      {{ craft.app.config.general.isSystemOn }}
+      {{ craft.app.config.general.logDumpMethod }}
+      {{ craft.app.config.general.overridePhpSessionLocation }}
+      {{ craft.app.config.general.phpMaxMemoryLimit }}
+      {{ craft.app.config.general.runTasksAutomatically }}
+      {{ craft.app.config.general.searchIgnoreWords }} {# array #}
+      {{ craft.app.config.general.siteName }} {# can be an array #}
+      {{ craft.app.config.general.siteUrl }} {# can be an array #}
+      {{ craft.app.config.general.timezone }}
+      {{ craft.app.config.general.translationDebugOutput }}
+      {{ craft.app.config.general.useCompressedJs }}
+      {{ craft.app.config.general.useWriteFileLock }}
+      {{ craft.app.config.general.useXSendFile }}
 
       {# Security Settings #}
-      {{ craft.config.csrfTokenName }}
-      {{ craft.config.defaultFilePermissions }}
-      {{ craft.config.defaultFolderPermissions }}
-      {{ craft.config.defaultTokenDuration }}
-      {{ craft.config.enableCsrfProtection }}
-      {{ craft.config.tokenParam }}
-      {{ craft.config.useSecureCookies }}
+      {{ craft.app.config.general.csrfTokenName }}
+      {{ craft.app.config.general.defaultFilePermissions }}
+      {{ craft.app.config.general.defaultFolderPermissions }}
+      {{ craft.app.config.general.defaultTokenDuration }}
+      {{ craft.app.config.general.enableCsrfProtection }}
+      {{ craft.app.config.general.tokenParam }}
+      {{ craft.app.config.general.useSecureCookies }}
 
       {# Updates Settings #}
-      {{ craft.config.allowAutoUpdates }}
-      {{ craft.config.backupDbOnUpdate }}
-      {{ craft.config.restoreDbOnUpdateFailure }}
+      {{ craft.app.config.general.allowAutoUpdates }}
+      {{ craft.app.config.general.backupDbOnUpdate }}
+      {{ craft.app.config.general.restoreDbOnUpdateFailure }}
 
       {# URL Settings #}
-      {{ craft.config.actionTrigger }}
-      {{ craft.config.addTrailingSlashesToUrls }}
-      {{ craft.config.allowUppercaseInSlug }}
-      {{ craft.config.baseCpUrl }}
-      {{ craft.config.cpTrigger }}
-      {{ craft.config.limitAutoSlugsToAscii }}
-      {{ craft.config.maxSlugIncrement }}
-      {{ craft.config.omitScriptNameInUrls }}
-      {{ craft.config.pageTrigger }}
-      {{ craft.config.resourceTrigger }}
-      {{ craft.config.slugWordSeparator }}
-      {{ craft.config.usePathInfo }}
+      {{ craft.app.config.general.actionTrigger }}
+      {{ craft.app.config.general.addTrailingSlashesToUrls }}
+      {{ craft.app.config.general.allowUppercaseInSlug }}
+      {{ craft.app.config.general.baseCpUrl }}
+      {{ craft.app.config.general.cpTrigger }}
+      {{ craft.app.config.general.limitAutoSlugsToAscii }}
+      {{ craft.app.config.general.maxSlugIncrement }}
+      {{ craft.app.config.general.omitScriptNameInUrls }}
+      {{ craft.app.config.general.pageTrigger }}
+      {{ craft.app.config.general.resourceTrigger }}
+      {{ craft.app.config.general.slugWordSeparator }}
+      {{ craft.app.config.general.usePathInfo }}
 
       {# Templating Settings #}
-      {{ craft.config.cacheElementQueries }}
-      {{ craft.config.defaultTemplateExtensions }} {# array #}
-      {{ craft.config.errorTemplatePrefix }}
-      {{ craft.config.indexTemplateFilenames }}
-      {{ craft.config.privateTemplateTrigger }}
+      {{ craft.app.config.general.cacheElementQueries }}
+      {{ craft.app.config.general.defaultTemplateExtensions }} {# array #}
+      {{ craft.app.config.general.errorTemplatePrefix }}
+      {{ craft.app.config.general.indexTemplateFilenames }}
+      {{ craft.app.config.general.privateTemplateTrigger }}
 
       {# Users Settings #}
-      {{ craft.config.activateAccountFailurePath }}
-      {{ craft.config.activateAccountSuccessPath }}
-      {{ craft.config.autoLoginAfterAccountActivation }}
-      {{ craft.config.blowfishHashCost }}
-      {{ craft.config.cooldownDuration }}
-      {{ craft.config.invalidLoginWindowDuration }}
-      {{ craft.config.invalidUserTokenPath }}
-      {{ craft.config.loginPath }}
-      {{ craft.config.logoutPath }}
-      {{ craft.config.maxInvalidLogins }}
-      {{ craft.config.postCpLoginRedirect }}
-      {{ craft.config.postLoginRedirect }}
-      {{ craft.config.purgePendingUsersDuration }}
-      {{ craft.config.rememberUsernameDuration }}
-      {{ craft.config.rememberedUserSessionDuration }}
-      {{ craft.config.requireMatchingUserAgentForSession }}
-      {{ craft.config.requireUserAgentAndIpForSession }}
-      {{ craft.config.setPasswordPath }}
-      {{ craft.config.setPasswordSuccessPath }}
-      {{ craft.config.testToEmailAddress }}
-      {{ craft.config.useEmailAsUsername }}
-      {{ craft.config.userSessionDuration }}
-      {{ craft.config.verificationCodeDuration }}
+      {{ craft.app.config.general.activateAccountFailurePath }}
+      {{ craft.app.config.general.activateAccountSuccessPath }}
+      {{ craft.app.config.general.autoLoginAfterAccountActivation }}
+      {{ craft.app.config.general.blowfishHashCost }}
+      {{ craft.app.config.general.cooldownDuration }}
+      {{ craft.app.config.general.invalidLoginWindowDuration }}
+      {{ craft.app.config.general.invalidUserTokenPath }}
+      {{ craft.app.config.general.loginPath }}
+      {{ craft.app.config.general.logoutPath }}
+      {{ craft.app.config.general.maxInvalidLogins }}
+      {{ craft.app.config.general.postCpLoginRedirect }}
+      {{ craft.app.config.general.postLoginRedirect }}
+      {{ craft.app.config.general.purgePendingUsersDuration }}
+      {{ craft.app.config.general.rememberUsernameDuration }}
+      {{ craft.app.config.general.rememberedUserSessionDuration }}
+      {{ craft.app.config.general.requireMatchingUserAgentForSession }}
+      {{ craft.app.config.general.requireUserAgentAndIpForSession }}
+      {{ craft.app.config.general.setPasswordPath }}
+      {{ craft.app.config.general.setPasswordSuccessPath }}
+      {{ craft.app.config.general.testToEmailAddress }}
+      {{ craft.app.config.general.useEmailAsUsername }}
+      {{ craft.app.config.general.userSessionDuration }}
+      {{ craft.app.config.general.verificationCodeDuration }}
 
       {# Assets Settings #}
-      {{ craft.config.allowedFileExtensions }}
-      {{ craft.config.defaultImageQuality }}
-      {{ craft.config.extraAllowedFileExtensions }}
-      {{ craft.config.filenameWordSeparator }}
-      {{ craft.config.generateTransformsBeforePageLoad }}
-      {{ craft.config.imageDriver }}
-      {{ craft.config.maxCachedCloudImageSize }}
-      {{ craft.config.maxUploadFileSize }}
-      {{ craft.config.rotateImagesOnUploadByExifData }}
-      {{ craft.config.generateTransformsBeforePageLoad }}
+      {{ craft.app.config.general.allowedFileExtensions }}
+      {{ craft.app.config.general.defaultImageQuality }}
+      {{ craft.app.config.general.extraAllowedFileExtensions }}
+      {{ craft.app.config.general.filenameWordSeparator }}
+      {{ craft.app.config.general.generateTransformsBeforePageLoad }}
+      {{ craft.app.config.general.imageDriver }}
+      {{ craft.app.config.general.maxCachedCloudImageSize }}
+      {{ craft.app.config.general.maxUploadFileSize }}
+      {{ craft.app.config.general.rotateImagesOnUploadByExifData }}
+      {{ craft.app.config.general.generateTransformsBeforePageLoad }}
 
       $0
 
@@ -188,10 +189,10 @@
   "craft.entries w/ params":
     prefix: "entriesp"
     body: '''
-      {% set entries = craft.entries.find({
+      {% set entries = craft.entries({
         section:    '${1:sectionName}',
         limit:      '${2:10}'
-      }) %}
+      }).all() %}
 
       {% for entry in entries %}
         <a href="{{ entry.url }}">{{ entry.title }}</a>
@@ -203,8 +204,8 @@
     body: '''
       {% for entry in craft.entries
         .section('${1:sectionName}')
-        .limit(${2:10})
-        %}
+        .limit(${2:10}).all()
+      %}
         <a href="{{ entry.url }}">{{ entry.title }}</a>
       {% endfor %}
       $0
@@ -229,50 +230,50 @@
   "info: craft.fields":
     prefix: "info"
     body: '''
-      {% set body = craft.fields.getFieldByHandle('body') %}
+      {% set body = craft.app.fields.getFieldByHandle('body') %}
       {{ body.instructions }}
     '''
   "info: craft.globals":
     prefix: "info"
     body: '''
-      {% set globals = craft.globals.getAllSets() %}
-      {% set globals = craft.globals.getEditableSets() %}
-      {% set globals = craft.globals.getTotalSets() %}
-      {% set globals = craft.globals.getTotalEditableSets() %}
-      {% set globalSet = craft.globals.getSetById( id, locale ) %}
-      {% set globalSet = craft.globals.getSetByHandle( handle, locale ) %}
+      {% set globals = craft.app.globals.allSets %}
+      {% set globals = craft.app.globals.editableSets %}
+      {% set globals = craft.app.globals.totalSets %}
+      {% set globals = craft.app.globals.totalEditableSets %}
+      {% set globalSet = craft.app.globals.getSetById(id, locale) %}
+      {% set globalSet = craft.app.globals.getSetByHandle(handle, locale) %}
     '''
   "info: craft.sections":
     prefix: "info"
     body: '''
-      {% set sections = craft.sections.getAllSections() %}
-      {% set sections = craft.sections.getEditableSections() %}
-      {% set total = craft.sections.getTotalSections() %}
-      {% set total = craft.sections.getTotalEditableSections() %}
-      {% set section = craft.sections.getSectionById( sectionId ) %}
-      {% set section = craft.sections.getSectionByHandle( handle ) %}
+      {% set sections = craft.app.sections.allSections %}
+      {% set sections = craft.app.sections.editableSections %}
+      {% set total = craft.app.sections.totalSections %}
+      {% set total = craft.app.sections.totalEditableSections %}
+      {% set section = craft.app.sections.getSectionById(id) %}
+      {% set section = craft.app.sections.getSectionByHandle(handle) %}
     '''
   "info: craft.session":
     prefix: "info"
     body: '''
-      {% if craft.session.isLoggedIn %}{% endif %}
+      {% if not craft.app.user.isGuest %}{% endif %}
 
-      {{ craft.session.getRememberedUsername }}
-      {{ craft.session.getReturnUrl }}
+      {{ craft.app.user.rememberedUsername }}
+      {{ craft.app.user.getReturnUrl() }}
 
-      {{ craft.session.getFlash( key, defaultValue, delete ) }}
-      {{ craft.session.getFlash( key, defaultValue, false ) }}
-      {{ craft.session.getFlashes( delete ) }}
-      {{ craft.session.getFlashes( false ) }}
+      {{ craft.app.session.getFlash( key, defaultValue, delete ) }}
+      {{ craft.app.session.getFlash( key, defaultValue, false ) }}
+      {{ craft.app.session.getAllFlashes( delete ) }}
+      {{ craft.app.session.getAllFlashes( false ) }}
 
-      {% if craft.session.hasFlash() %}{% endif %}
+      {% if craft.app.session.hasFlash() %}{% endif %}
     '''
   "craft.tags w/ params":
     prefix: "tagsp"
     body: '''
-      {% set tags = craft.tags.find({
+      {% set tags = craft.tags({
         set:    '${1:setName}'
-      }) %}
+      }).all() %}
 
       <ul>
       {% for tag in tags %}
@@ -286,7 +287,7 @@
     body: '''
       <ul>
       {% for tag in craft.tags
-        .set('${1:setName}')
+        .set('${1:setName}').all()
         %}
           <li>{{ tag }}</li>
       {% endfor %}
@@ -296,9 +297,9 @@
   "craft.users w/ params":
     prefix: "usersp"
     body: '''
-      {% set accounts = craft.users.find({
+      {% set accounts = craft.users({
         group:    '${1:groupName}'
-      }) %}
+      }).all() %}
 
       {% for account in accounts %}
         {{ account.firstName }} {{ account.lastName }}
@@ -309,7 +310,7 @@
     prefix: "users"
     body: '''
       {% for account in craft.users
-        .group('${1:groupName}')
+        .group('${1:groupName}').all()
         %}
         {{ account.firstName }} {{ account.lastName }}
       {% endfor %}
@@ -413,43 +414,34 @@
   include:
     prefix: "inc"
     body: "{% include '${1:template}'${2: with ${3:vars} }%}$0"
-  includeCssFile:
-    prefix: "includecssfile"
+  registerCssFile:
+    prefix: "registerCssFile"
     body: '''
-      {% includeCssFile "${1:/resources/css/global.css}" %}
-      $0
-    '''
-  includeCssHiRes:
-    prefix: "includecsshires"
-    body: '''
-      {% includehirescss %}
-        ${1:/* ${2:CSS here} */}
-        $3
-      {% endincludehirescss %}
-      $0
-    '''
-  includeJs:
-    prefix: "includejs"
-    body: '''
-      {% includejs %}
-        ${1:/* ${2:CSS here} */}
-        $3
-      {% endincludejs %}
-      $0
-    '''
-  includeJsFile:
-    prefix: "includejsfile"
-    body: '''
-      {% includeJsFile "${1:/resources/js/global.js}" %}
+      {% do view.registerCssFile(${1:/resources/css/global.css}) %}
       $0
     '''
   includeCss:
     prefix: "includecss"
     body: '''
-      {% includecss %}
+      {% css %}
         ${1:/* ${2:CSS here} */}
         $3
-      {% endincludecss %}
+      {% endcss %}
+      $0
+    '''
+  includeJs:
+    prefix: "includejs"
+    body: '''
+      {% js %}
+        ${1:/* ${2:CSS here} */}
+        $3
+      {% endjs %}
+      $0
+    '''
+  registerJsFile:
+    prefix: "registerJsFile"
+    body: '''
+      {% do view.registerJsFile(${1:/resources/js/global.js}) %}
       $0
     '''
   "info: craft.assets":
@@ -460,9 +452,9 @@
       {% set assets = craft.assets.last() %}
       {% set assets = craft.assets.nth( n ) %}
       {% set assets = craft.assets.ids() %}
-      {% set assets = craft.assets.total() %}
+      {% set assets = craft.assets.count() %}
 
-      {% set assets = craft.assets.find({
+      {% set assets = craft.assets({
 
         filename:   'fileName.jpg',
         fixedOrder: true|false,
@@ -509,7 +501,7 @@
                     [ arrayOfModels, arrayOfModels, arrayOfModels ]
                     [ 1, 2, 3 ]
                     craft.assets, craft.entries, craft.users, craft.tags
-      }) %}
+      }).all() %}
 
       {% for asset in assets %}
 
@@ -553,9 +545,9 @@
       {% set categories = craft.categories.last() %}
       {% set categories = craft.categories.nth( n ) %}
       {% set categories = craft.categories.ids() %}
-      {% set categories = craft.categories.total() %}
+      {% set categories = craft.categories.count() %}
 
-      {% set categories = craft.categories.find({
+      {% set categories = craft.categories({
         id:             id OR 'not id' ,
         fixedOrder:     true/false,
         title:          'title',
@@ -594,7 +586,7 @@
                         '*ty'                 containing a word that ends with "ty"
                         '*alt*'               containing a word that contains "alt"
 
-      }) %}
+      }).all() %}
 
       {% for category in categories %}
 
@@ -647,9 +639,9 @@
       {% set entries = craft.entries.last() %}
       {% set entries = craft.entries.nth( n ) %}
       {% set entries = craft.entries.ids() %}
-      {% set entries = craft.entries.total() %}
+      {% set entries = craft.entries.count() %}
 
-      {% set entries = craft.entries.find({
+      {% set entries = craft.entries({
         id:             id OR 'not id' ,
         fixedOrder:     true/false,
         slug:           'slug',
@@ -703,7 +695,7 @@
                         [ 1, 2, 3 ]
                         craft.assets, craft.entries, craft.users, craft.tags
 
-      }) %}
+      }).all() %}
 
       {% for entry in entries %}
 
@@ -808,7 +800,7 @@
 
       {{ craft.app.request.queryString }}
       {{ craft.app.request.queryStringWithoutPath }}
-      {{ craft.app.request.segments }}        {# array #}
+      {{ craft.app.request.segments }}   {# array #}
 
       {{ craft.app.request.firstSegment }}
       {{ craft.app.request.lastSegment }}
@@ -816,7 +808,7 @@
       {{ craft.app.request.serverName }}
 
       {# Methods #}
-      {{ craft.request.isMobileBrowser() }}
+      {{ craft.app.request.isMobileBrowser() }}
 
       {{ craft.app.request.getSegment( n ) }}
       {{ craft.app.request.getCookie( name ) }}
@@ -834,9 +826,9 @@
       {% set tags = craft.tags.last() %}
       {% set tags = craft.tags.nth( n ) %}
       {% set tags = craft.tags.ids() %}
-      {% set tags = craft.tags.total() %}
+      {% set tags = craft.tags.count() %}
 
-      {% set tags = craft.tags.find({
+      {% set tags = craft.tags({
         id:             id OR 'not id' ,
         fixedOrder:     true|false,
         title:          'title',
@@ -871,7 +863,7 @@
                         [ 1, 2, 3 ]
                         craft.assets, craft.entries, craft.users, craft.tags
 
-      }) %}
+      }).all %}
 
       {% for tag in tags %}
 
@@ -897,9 +889,9 @@
       {% set users = craft.users.last() %}
       {% set users = craft.users.nth( n ) %}
       {% set users = craft.users.ids() %}
-      {% set users = craft.users.total() %}
+      {% set users = craft.users.count() %}
 
-      {% set users = craft.users.find({
+      {% set users = craft.users({
         admin:        true OR false,
         can:          'createEntries:5'
         email:        'email',
@@ -934,7 +926,7 @@
                     '*ty'                 containing a word that ends with "ty"
                     '*alt*'               containing a word that contains "alt",
 
-      }) %}
+      }).all() %}
 
       {% for user in users %}
 
@@ -1102,7 +1094,7 @@
     '''
   round:
     prefix: "round"
-    body: "round($1)$0"
+    body: "54|round$0"
   "set (block)":
     prefix: "setb"
     body: '''
@@ -1153,10 +1145,10 @@
       {{ logoutUrl }}
 
       DATE
-      {{ now.year }}
-      {{ now.month }}
-      {{ now.day }}
-      {{ now|date("M d, Y") }}
+      {{ now|date('Y') }}
+      {{ now|date('M') }}
+      {{ now|date('d') }}
+      {{ now|date("d M Y") }}
       {{ now|date_modify("+1 day") }}
 
       USERS
@@ -1191,20 +1183,20 @@
       {{ craft.tags }}
       {{ craft.user }}
 
-      {{ craft.config }}
-      {{ craft.feeds }}
-      {{ craft.fields }}
-      {{ craft.globals }}
-      {{ craft.request }}
-      {{ craft.sections }}
-      {{ craft.session }}
+      {{ craft.app.config }}
+      {{ craft.app.feeds }}
+      {{ craft.app.fields }}
+      {{ craft.app.globals }}
+      {{ craft.app.request }}
+      {{ craft.app.sections }}
+      {{ craft.app.user }}
 
       $0
     '''
   csrf:
     prefix: "csrf"
     body: '''
-      {{ getCsrfInput() }}
+      {{ csrfInput() }}
       $0
     '''
   "url w/ arguments":

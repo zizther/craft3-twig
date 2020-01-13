@@ -43,18 +43,17 @@ A port from [BarrelStrength Craft-Twig.tmbundle](https://github.com/BarrelStreng
     users, usersp            craft.users loop
 
     ciel               ceil()
-    csrf               {{ getCsrfInput() }}
+    csrf               {{ csrfInput() }}
     exit               {% exit 404 %}
     endmacro           {% endmacro %}
     floor              floor()
-    includecss         {% includecss %} ... {% endincludecss %}
-    includecssfile     {% includeCssFile "/resources/css/global.css" %}
-    includecsshires    {% includehirescss %} ... {% endincludehirescss %}
-    includejs          {% includejs %} ... {% endincludejs %}
 
-    includejsfile      {% includeJsFile "/resources/css/global.css" %}
+    includecss         {% css %} ... {% endcss %}
+    registerCssFile    {% do view.registerCssFile(/resources/css/global.css) %}
+    includejs          {% js %} ... {% endjs %}
+    registerJsFile     {% do view.registerJsFile(/resources/js/global.js) %}
+
     macro              {% macro name(param) %} ... {% endmacro %}
-    includejs          {% includeJsFile "/resources/css/global.css" %}
     matrix             Outputs a basic Matrix Field loop
     max                max()
     min                min()
@@ -67,7 +66,7 @@ A port from [BarrelStrength Craft-Twig.tmbundle](https://github.com/BarrelStreng
     getsegment         craft.app.request.getSegment()
     requirelogin       {% requireLogin %}
     requirepermission  {% requirePermission "spendTheNight" %}
-    round              round()
+    round              num|round
     shuffle            shuffle()
     switch             {% switch variable %}{% endswitch %}
     url, urla          url('path'), url('path', params, 'http', false)
