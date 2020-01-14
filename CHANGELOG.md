@@ -1,3 +1,7 @@
+## 0.1.5
+* Added snippets for if ... elseif and if ... elseif ... else tags
+* Improved the elseif snippet to allow condition
+
 ## 0.1.4
 * Added elseif completion
 

@@ -22,11 +22,13 @@ A port from [BarrelStrength Craft-Twig.tmbundle](https://github.com/BarrelStreng
 
     if, ifb         {% if condition %} ... {% endif %}
     ife             {% if condition %} ... {% else %} ... {% endif %}
+    ifeif           {% if condition %} ... {% elseif condition %} ... {% endif %}
+    ifeife          {% if condition %} ... {% elseif condition %} ... {% else %} ... {% endif %}
     import          {% import 'template' as key %}
     for             {% for item in seq %} ... {% endfor %}
     fore            {% for item in seq %} ... {% else %} ... {% endfor %}
     else            {% else %}
-    elseif          {% elseif %}
+    elseif          {% elseif condition %}
 
     endif           {% endif %}
     endfor          {% endfor %}
