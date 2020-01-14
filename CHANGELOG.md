@@ -1,3 +1,6 @@
+## 0.1.4
+* Added elseif completion
+
 ## 0.1.3
 * APM Patch deployment
 

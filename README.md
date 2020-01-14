@@ -26,6 +26,7 @@ A port from [BarrelStrength Craft-Twig.tmbundle](https://github.com/BarrelStreng
     for             {% for item in seq %} ... {% endfor %}
     fore            {% for item in seq %} ... {% else %} ... {% endfor %}
     else            {% else %}
+    elseif          {% elseif %}
 
     endif           {% endif %}
     endfor          {% endfor %}
