@@ -1,3 +1,6 @@
+## 0.1.7
+* APM Patch deployment
+
 ## 0.1.6
 * Fixed spacing issues on output
 * Updated order param with orderBy for Craft 3
