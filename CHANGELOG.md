@@ -1,3 +1,12 @@
+## 0.1.6
+* Fixed spacing issues on output
+* Updated order param with orderBy for Craft 3
+* The inc snippet now excludes the `with` param, use incp instead
+* Added additional cache snippets for support with globally, keys, until and unless. You can now use cache, cacheg, cachek, cachegk, cacheuntil, cacheunless
+* Added dd snippet
+* Removed assetsp, categoriesp, entriesp, feedp, tagsp, usersp. You can still use assets, categories, entries, feed, tags, users
+* Minor clean up
+
 ## 0.1.5
 * Added snippets for if ... elseif and if ... elseif ... else tags
 * Improved the elseif snippet to allow condition

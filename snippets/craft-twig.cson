@@ -1,43 +1,142 @@
 ".text.html.twig":
-  "craft.assets":
-    prefix: "assets"
+  "{% ... %}":
+    prefix: "%%"
+    body: "{% $1 %}$2"
+  "{# ... #}":
+    prefix: "##"
+    body: "{# $1 #}$2"
+  "{{ ... }}":
+    prefix: "}}"
+    body: "{{ $1 }}$2"
+  extends:
+    prefix: "extends"
+    body: "{% extends '${1:template}' %}$0"
+  import:
+    prefix: "import"
     body: '''
-      {% for image in craft.assets.
-        .sourceId('${1:1}')
-        .kind('${2:image}')
-        .limit(${3:10})
-      }) %}
-          <img src="{{ image.url${4:('${5:thumb}')} }}" width="${6:200}" height="${7:200}" alt="{{ image.title }}">
-      {% endfor %}
+      {% import '${1:template}' as ${2:key} %}
+    '''
+  include:
+    prefix: "inc"
+    body: "{% include '${1:template}' %}$0"
+  "include w/ params":
+    prefix: "incp"
+    body: '''
+      {% include '${1:template}' with {
+          ${2:key}: ${3:'${4:value}'}
+      }} %}
       $0
     '''
-  "block (block)":
-    prefix: "blockb"
+  set:
+    prefix: "set"
+    body: "{% set ${1:var} = ${2:value} %}$0"
+  "set (block)":
+    prefix: "setb"
+    body: '''
+      {% set ${1:var} %}
+          $0
+      {% endset %}
+    '''
+  block:
+    prefix: "block"
     body: '''
       {% block ${1:name} %}
           $0
       {% endblock %}
     '''
-  block:
-    prefix: "block"
-    body: "{% block ${1:name} %}$0{% endblock %}"
-  cache:
-    prefix: "cache"
+  filter:
+    prefix: "filter"
     body: '''
-    {% cache ${1:globally} ${2:using key} ${3:"cache-key"} %}
-      $0
-    {% endcache %}
+      {% filter ${1:name} %}
+          $0
+      {% endfilter %}
     '''
-  ciel:
-    prefix: "ciel"
-    body: "ceil($1)$0"
-  "craft.assets w/ params":
-    prefix: "assetsp"
+  if:
+    prefix: "if"
+    body: "{% if ${1:condition} %}$0{% endif %}"
+  "if (block)":
+    prefix: "ifb"
+    body: '''
+      {% if ${1:condition} %}
+          $0
+      {% endif %}
+    '''
+  "if ... else":
+    prefix: "ife"
+    body: '''
+      {% if ${1:condition} %}
+          $2
+      {% else %}
+          $0
+      {% endif %}
+    '''
+  "if ... elseif":
+    prefix: "ifeif"
+    body: '''
+      {% if ${1:condition} %}
+          $2
+      {% elseif ${3:condition} %}
+          $0
+      {% endif %}
+    '''
+  "if ... elseif ... else":
+    prefix: "ifeife"
+    body: '''
+      {% if ${1:condition} %}
+          $2
+      {% elseif ${3:condition} %}
+          $4
+      {% else %}
+          $0
+      {% endif %}
+    '''
+  else:
+    prefix: "else"
+    body: "{% else %}$0"
+  elseif:
+    prefix: "elseif"
+    body: "{% elseif ${1:condition} %}$0"
+  for:
+    prefix: "for"
+    body: '''
+      {% for ${1:item} in ${2:items} %}
+          $0
+      {% endfor %}
+    '''
+  "for ... else":
+    prefix: "fore"
+    body: '''
+      {% for ${1:item} in ${2:items} %}
+          $3
+      {% else %}
+          $0
+      {% endfor %}
+    '''
+  endif:
+    prefix: "endif"
+    body: "{% endif %}$0"
+  endfor:
+    prefix: "endfor"
+    body: "{% endfor %}$0"
+  endset:
+    prefix: "endset"
+    body: "{% endset %}$0"
+  endblock:
+    prefix: "endblock"
+    body: "{% endblock %}$0"
+  endfilter:
+    prefix: "endfilter"
+    body: "{% endfilter %}$0"
+  endmacro:
+    prefix: "endmacro"
+    body: "{% endmacro %}$0"
+  "craft.assets":
+    prefix: "assets"
     body: '''
       {% set assets = craft.assets({
-        sourceId:  	'${1:1}',
-        kind:      	'${2:image}',
-        limit: 			${3:10}
+          sourceId: '${1:1}',
+          kind: '${2:image}',
+          limit: ${3:10}
       }).all() %}
 
       {% for image in assets %}
@@ -45,12 +144,12 @@
       {% endfor %}
       $0
     '''
-  "craft.categories w/ params":
-    prefix: "categoriesp"
+  "craft.categories":
+    prefix: "categories"
     body: '''
       {% set categories = craft.categories({
-        group:    '${1:categoryGroupHandle',
-        limit:      '${2:10}'
+          group: '${1:categoryGroupHandle',
+          limit: '${2:10}'
       }).all() %}
 
       <ul>
@@ -66,28 +165,586 @@
           {% endnav %}
       </ul>
     '''
-  "craft.categories":
-    prefix: "categories"
+  "craft.entries":
+    prefix: "entries"
     body: '''
+      {% set entries = craft.entries({
+          section:    '${1:sectionName}',
+          limit:      '${2:10}'
+      }).all() %}
+
+      {% for entry in entries %}
+          <a href="{{ entry.url }}">{{ entry.title }}</a>
+      {% endfor %}
+      $0
+    '''
+  feed:
+    prefix: "feed"
+    body: '''
+      {% set feedUrl = "${1:http://feeds.feedburner.com/blogandtonic}" %}
+      {% set limit = ${2:10} %}
+      {% set items = craft.feeds.getFeedItems(feedUrl, limit) %}
+
+      {% for item in items %}
+          <article>
+              <h3><a href="{{ item.permalink }}">{{ item.title }}</a></h3>
+              <p class="author">{{ item.authors[0].name }}</p>
+              <p class="date">{{ item.date }}</p>
+
+              {{ item.summary }}
+          </article>
+      {% endfor %}
+    '''
+  "craft.tags":
+    prefix: "tags"
+    body: '''
+      {% set tags = craft.tags({
+          set:    '${1:setName}'
+      }).all() %}
+
       <ul>
-          {% nav category in craft.categories
-             .group('categoryGroupHandle',')
-             .limit(10)
-             .all()
-             %}
-              <li>
-                  <a href="{{ category.url }}">{{ category.title }}</a>
-                  {% ifchildren %}
-                      <ul>
-                          {% children %}
-                      </ul>
-                  {% endifchildren %}
-              </li>
-          {% endnav %}
+          {% for tag in tags %}
+              <li>{{ tag }}</a></li>
+          {% endfor %}
       </ul>
+      $0
+    '''
+  "craft.users":
+    prefix: "users"
+    body: '''
+      {% set accounts = craft.users({
+          group:    '${1:groupName}'
+      }).all() %}
+
+      {% for account in accounts %}
+          {{ account.firstName }} {{ account.lastName }}
+      {% endfor %}
+      $0
+    '''
+  cache:
+    prefix: "cache"
+    body: '''
+    {% cache %}
+        $0
+    {% endcache %}
+    '''
+  "cache globally":
+    prefix: "cacheg"
+    body: '''
+    {% cache globally %}
+        $0
+    {% endcache %}
+    '''
+  "cache with key":
+    prefix: "cachek"
+    body: '''
+    {% cache using key ${1:"cache-key"} %}
+        $0
+    {% endcache %}
+    '''
+  "cache globally with key":
+    prefix: "cachegk"
+    body: '''
+    {% cache globally using key ${1:"cache-key"} %}
+        $0
+    {% endcache %}
+    '''
+  "cache until":
+    prefix: "cacheuntil"
+    body: '''
+    {% cache until ${1:condition} %}
+        $0
+    {% endcache %}
+    '''
+  "cache unless":
+    prefix: "cacheunless"
+    body: '''
+    {% cache unless ${1:condition} %}
+        $0
+    {% endcache %}
+    '''
+  csrf:
+    prefix: "csrf"
+    body: '''
+      {{ csrfInput() }}
+      $0
+    '''
+  exit:
+    prefix: "exit"
+    body: "{% exit ${1:404} %}"
+  "dump and die":
+    prefix: "dd"
+    body: "{% dd $1 %}$0"
+  includeCss:
+    prefix: "includecss"
+    body: '''
+      {% css %}
+          ${1:/* ${2:CSS here} */}
+          $3
+      {% endcss %}
+      $0
+    '''
+  registerCssFile:
+    prefix: "registerCssFile"
+    body: '''
+      {% do view.registerCssFile(${1:/resources/css/global.css}) %}
+      $0
+    '''
+  includeJs:
+    prefix: "includejs"
+    body: '''
+      {% js %}
+          ${1:/* ${2:CSS here} */}
+          $3
+      {% endjs %}
+      $0
+    '''
+  registerJsFile:
+    prefix: "registerJsFile"
+    body: '''
+      {% do view.registerJsFile(${1:/resources/js/global.js}) %}
+      $0
+    '''
+  macro:
+    prefix: "macro"
+    body: '''
+      {% macro ${1:name}(${2:param}) %}
+          $0
+      {% endmacro %}
+    '''
+  matrix:
+    prefix: "matrix"
+    body: '''
+      {% for block in ${1:entry.matrixFieldHandle} %}
+          {% if block.type == '${2:blockHandle}' %}
+              {{ block.${3:fieldHandle} }}
+          {% endif %}
+
+          {% if block.type == '${4:blockHandle}' %}
+              {{ block.${5:fieldHandle} }}
+          {% endif %}
+      {% endfor %}
+      $0
+    '''
+  "paginate simple":
+    prefix: "paginatesimple"
+    body: '''
+      {% paginate craft.entries.section('blog').limit(10) as entries %}
+          {% for entry in entries %}
+              <article>
+                  <h1>{{ entry.title }}</h1>
+                  {{ entry.body }}
+              </article>
+          {% endfor %}
+
+          {% if paginate.prevUrl %}
+              <a href="{{ paginate.prevUrl }}">Previous Page</a>
+          {% endif %}
+
+          {% if paginate.nextUrl %}
+              <a href="{{ paginate.nextUrl }}">Next Page</a>
+          {% endif %}
+      {% endpaginate %}
+      $0
+    '''
+  "paginate advanced":
+    prefix: "paginateadvanced"
+    body: '''
+      {# PAGINATION
+
+      For this pagination to work properly, we need to be sure to set
+      the paginateBase variable in the template we are including the
+      pagination in.
+
+      {% set paginateBase = "/blog/p" %}
+      #}
+
+      {% if paginate.totalPages > 1 %}
+      <ul>
+          {% if paginate.currentPage != "1"  %}
+              <li><a href="{{ paginateBase ~ '1' }}">First Page</a></li>
+          {% endif %}
+
+          {% if paginate.prevUrl %}
+              <li><a href="{{ paginate.prevUrl }}">Previous Page</a></li>
+          {% endif %}
+
+          {% for pageNumber in 1..paginate.totalPages %}
+              <li {% if paginate.currentPage == pageNumber %}class="active-page"{% endif %}>
+                  <a href="{{ paginateBase ~ pageNumber }}">{{ pageNumber }}</a>
+              </li>
+          {% endfor %}
+
+          {% if paginate.nextUrl %}
+              <li><a href="{{ paginate.nextUrl }}">Next Page</a></li>
+          {% endif %}
+
+          {% if paginate.currentPage != paginate.total %}
+              <li><a href="{{ paginateBase ~ paginate.total }}">Last Page</a></li>
+          {% endif %}
+      </ul>
+      {% endif %}
+      $0
+    '''
+  redirect:
+    prefix: "redirect"
+    body: '''
+      {% redirect '${1:template/path or https://craftcms.com/}' %}
+      $0
+    '''
+  "request getParam":
+    prefix: "getparam"
+    body: '''
+      craft.app.request.getParam(${1:'Query String or Post Variable Name'})
+      $0
+    '''
+  "request getPost":
+    prefix: "getpost"
+    body: '''
+      craft.app.request.getPost(${1:'postVariableName'})
+      $0
+    '''
+  "request getQuery":
+    prefix: "getquery"
+    body: '''
+      craft.app.request.getQuery(${1:'queryStringName'})
+      $0
+    '''
+  "request getSegment":
+    prefix: "getsegment"
+    body: '''
+      craft.app.request.getSegment(${1:2})
+      $0
+    '''
+  requireLogin:
+    prefix: "requirelogin"
+    body: '''
+        {% requireLogin %}
+        $0
+    '''
+  requirePermission:
+    prefix: "requirepermission"
+    body: '''
+      {% requirePermission "${1:spendTheNight}" %}
+      $0
+    '''
+  switch:
+    prefix: "switch"
+    body: '''
+      {% switch ${1:variable} %}
+
+        {% case "${2:value1}" %}
+
+
+        {% case "${3:value2}" %}
+
+
+        {% default %}
+
+
+      {% endswitch %}
+      $0
+    '''
+  shuffle:
+    prefix: "shuffle"
+    body: "shuffle($1)$0"
+  url:
+    prefix: "url"
+    body: "url('${1:path}')$0"
+  "url w/ arguments":
+    prefix: "urla"
+    body: "url('${1:path}', ${2:{foo:'1', bar:'2'\\}}, ${3:'http'}, ${4:false})$0"
+  ciel:
+    prefix: "ciel"
+    body: "ceil($1)$0"
+  floor:
+    prefix: "floor"
+    body: "floor($1)$0"
+  max:
+    prefix: "max"
+    body: "max(${1:$2, $3})$0"
+  min:
+    prefix: "min"
+    body: "min(${1:$2, $3})$0"
+  round:
+    prefix: "round"
+    body: "54|round$0"
+  "info: site":
+    prefix: "info"
+    body: '''
+      SITE
+      {{ siteName }}
+      {{ siteUrl }}
+      {{ loginUrl }}
+      {{ logoutUrl }}
+
+      DATE
+      {{ now|date('Y') }}
+      {{ now|date('M') }}
+      {{ now|date('d') }}
+      {{ now|date("d M Y") }}
+      {{ now|date_modify("+1 day") }}
+
+      USERS
+      {{ currentUser }}  {# null if no user is logged in #}
+      {{ currentUser.id }}
+      {{ currentUser.username }}
+      {{ currentUser.firstName }}
+      {{ currentUser.lastName }}
+      {{ currentUser.friendlyName }}
+      {{ currentUser.email }}
+      {{ currentUser.preferredLocale }}
+      {{ currentUser.admin }}
+      {{ currentUser.status }}  {# active, locked, suspended, pending, archived #}
+      {{ currentUser.lastLoginDate }}
+      {{ currentUser.dateCreated }}
+      {{ currentUser.dateUpdated }}
+
+      {{ currentUser.getChildren() }}
+      {{ currentUser.getParents() }}
+
+      {% set params = { group: 'authors', orderBy: 'firstName, lastName' } %}
+      {{ currentUser.getNext( params ) }}
+      {{ currentUser.getPrev( params ) }}
+
+      GLOBALS
+      {{ globalSetName.fieldName }}
+
+      TAGS
+      {{ craft.assets }}
+      {{ craft.categories }}
+      {{ craft.entries }}
+      {{ craft.tags }}
+      {{ craft.user }}
+
+      {{ craft.app.config }}
+      {{ craft.app.feeds }}
+      {{ craft.app.fields }}
+      {{ craft.app.globals }}
+      {{ craft.app.request }}
+      {{ craft.app.sections }}
+      {{ craft.app.user }}
+
+      $0
+    '''
+  "info: craft.app.request":
+    prefix: "infoapp"
+    body: '''
+      {# Properties #}
+      {{ craft.app.request.isAjax }}
+      {{ craft.app.request.isLivePreview }}
+      {{ craft.app.request.isSecure }}
+
+      {{ craft.app.request.path }}
+      {{ craft.app.request.url }}
+      {{ craft.app.request.urlReferrer }}
+      {{ craft.app.request.pageNum }}
+
+      {{ craft.app.request.queryString }}
+      {{ craft.app.request.queryStringWithoutPath }}
+      {{ craft.app.request.segments }}   {# array #}
+
+      {{ craft.app.request.firstSegment }}
+      {{ craft.app.request.lastSegment }}
+
+      {{ craft.app.request.serverName }}
+
+      {# Methods #}
+      {{ craft.app.request.isMobileBrowser() }}
+
+      {{ craft.app.request.getSegment( n ) }}
+      {{ craft.app.request.getCookie( name ) }}
+      {{ craft.app.request.getParam( name ) }}  {# Returns a parameter from either the query string or POST data. #}
+      {{ craft.app.request.getQuery( name ) }}  {# Returns a parameter from the query string. #}
+      {{ craft.app.request.getPost( name ) }}   {# Returns a parameter from the POST data. #}
+
+      $0
+    '''
+  "info: craft.assets":
+    prefix: "infoassets"
+    body: '''
+
+      {% set assets = craft.assets.first() %}
+      {% set assets = craft.assets.last() %}
+      {% set assets = craft.assets.nth( n ) %}
+      {% set assets = craft.assets.ids() %}
+      {% set assets = craft.assets.count() %}
+
+      {% set assets = craft.assets({
+          filename:   'fileName.jpg',
+          fixedOrder: true|false,
+          folderId:   id,
+          height:     200,
+          id:         id,
+          kind:       http://buildwithcraft.com/docs/templating/craft.assets#kind,
+          offset:     1,
+          size:       1000,
+          title:      'title',
+          source:     'assetSourceHandle'
+          sourceId:   id,
+          width:      200,
+
+          relatedTo:      element, sourceElement, targetElement, field, sourceLocale,
+          childOf:        See supported syntaxes below,
+          childField:     'fieldHandle' OR id,
+          parentOf:       See supported syntaxes below,
+          parentField:    'fieldHandle' OR id,
+
+          orderBy:    'title,id,sourceId,folderId,filename,kind,width,height,size,
+                      dateCreated asc,dateUpdated desc',
+                      Also supports any textual field handles
+          limit:      100,
+          locale:     'en_us',
+          indexBy:    'id,title',
+
+          search:     'salty dog'           containing both "salty" and "dog"
+                      '"salty dog"'         containing the exact phrase "salty dog"
+                      'salty OR dog'        containing either "salty" or "dog" (or both)
+                      'salty -dog'          containing "salty" but not "dog"
+                      'body:salty'          containing "salty" in the "body" field
+                      'body:salty'          body:dog containing both "salty" and "dog"
+                                            in the "body" field
+                      'body:*'              containing anything within the "body" field
+                      'salty locale:en_us'  containing "salty" in the locale "en_us"
+                      'salt*'               containing a word that begins with "salt"
+                      '*ty'                 containing a word that ends with "ty"
+                      '*alt*'               containing a word that contains "alt",
+
+          Supported syntaxes for childOf, kind, parentOf
+                    elementId
+                    AssetFileModel, EntryModel, UserModel, or TagModel
+                    [ arrayOfModels, arrayOfModels, arrayOfModels ]
+                    [ 1, 2, 3 ]
+                    craft.assets, craft.entries, craft.users, craft.tags
+      }).all() %}
+
+      {% for asset in assets %}
+          {{ asset.dateCreated }}
+          {{ asset.dateUpdated }}
+          {{ asset.extension }}
+          {{ asset.filename }}
+          {{ asset.folder }}
+          {{ asset.folderId }}
+          {{ asset.height }}
+          {{ asset.id }}
+          {{ asset.img }}
+          {{ asset.kind }}
+          {{ asset.locale }}
+          {{ asset.link }}
+          {{ asset.mimeType }}
+          {{ asset.size | filesize }}
+          {{ asset.source }}
+          {{ asset.sourceId }}
+          {{ asset.url }}
+          {{ asset.width }}
+
+          {{ asset.getHeight( transform ) }}
+          {{ asset.getWidth( transform ) }}
+          {{ asset.getUrl( transform ) }}
+          {{ asset.setTransform( transform ) }}
+
+          {% set prev = asset.getPrev( params ) %}
+          {% set next = asset.getNext( params ) %}
+          {% if prev %} <a href="/link-to-prev-asset">{{ prev.title }}</a> {% endif %}
+          {% if next %} <a href="/link-to-next-asset">{{ next.title }}</a> {% endif %}
+
+      {% endfor %}}
+      $0
+    '''
+  "info: craft.categories":
+    prefix: "infocategories"
+    body: '''
+
+      {% set categories = craft.categories.first() %}
+      {% set categories = craft.categories.last() %}
+      {% set categories = craft.categories.nth( n ) %}
+      {% set categories = craft.categories.ids() %}
+      {% set categories = craft.categories.count() %}
+
+      {% set categories = craft.categories({
+          id:             id OR 'not id' ,
+          fixedOrder:     true/false,
+          title:          'title',
+          slug:           'slug',
+          uri:            'uri',
+          group:          'categoryGroupHandle'
+          groupId:        id,
+          status:         'live,pending,expired,disabled,null',
+          offset:         10,
+          level:          2,
+          locale:         'en_us',
+
+          relatedTo:      element, sourceElement, targetElement, field, sourceLocale,
+          ancestorOf:     CategoryModel OR id,
+          ancestorDist:   2,
+          descendantOf:   CategoryModel OR id,
+          descendantDist: 2,
+          nextSiblingOf:  CategoryModel OR id,
+          prevSiblingOf:  CategoryModel OR id,
+
+          orderBy:        'title,id,groupId,slug,uri,
+                          dateCreated asc,dateUpdated desc',
+          limit:          10,
+          indexBy:        'id,title',
+
+          search:         'salty dog'           containing both "salty" and "dog"
+                          '"salty dog"'         containing the exact phrase "salty dog"
+                          'salty OR dog'        containing either "salty" or "dog" (or both)
+                          'salty -dog'          containing "salty" but not "dog"
+                          'body:salty'          containing "salty" in the "body" field
+                          'body:salty'          body:dog containing both "salty" and "dog"
+                                                in the "body" field
+                          'body:*'              containing anything within the "body" field
+                          'salty locale:en_us'  containing "salty" in the locale "en_us"
+                          'salt*'               containing a word that begins with "salt"
+                          '*ty'                 containing a word that ends with "ty"
+                          '*alt*'               containing a word that contains "alt"
+
+      }).all() %}
+
+      {% for category in categories %}
+          {{ category.id }}
+          {{ category.level }}
+          {{ category.groupId }}
+          {{ category.group }}   {# array #}
+          {{ category.locale }}
+          {{ category.title }}
+          {{ category.slug }}
+          {{ category.uri }}
+          {{ category.url }}       {# full front-end URL #}
+          {{ category.link }}      {# full <a> tag #}
+          {{ category.cpEditUrl }}
+
+          {{ category.enabled }}
+          {{ category.status }}
+
+          {{ category.dateCreated }}
+          {{ category.dateUpdated }}
+
+          {{ category.getAncestors( distance ) }}
+          {{ category.getDescendants( distance) }}
+          {{ category.children }}
+          {{ category.parent }}
+          {{ category.hasDescendants }}
+          {{ category.nextSibling }}
+          {{ category.prevSibling }}
+          {{ category.isAncestorOf( entry ) }}
+          {{ category.isChildOf( entry ) }}
+          {{ category.isDescendantOf( entry ) }}
+          {{ category.isNextSiblingOf( entry ) }}
+          {{ category.isParentOf( entry ) }}
+          {{ category.isPrevSiblingOf( entry ) }}
+          {{ category.isSiblingOf( entry ) }}
+
+          {% set prev = category.getPrev( params ) %}
+          {% set next = category.getNext( params ) %}
+          {% if prev %} <a href="{{ prev.url }}">{{ prev.title }}</a> {% endif %}
+          {% if next %} <a href="{{ next.url }}">{{ next.title }}</a> {% endif %}
+      {% endfor %}}
+      $0
     '''
   "info: craft.config":
-    prefix: "info"
+    prefix: "infoconfig"
     body: '''
       {# Access any settings in craft/config/general.php #}
       {% if craft.app.config.general.devMode %}{% endif %}
@@ -190,58 +847,164 @@
       {{ craft.app.config.general.generateTransformsBeforePageLoad }}
 
       $0
-
-
     '''
-  "craft.entries w/ params":
-    prefix: "entriesp"
+  "info: craft.entries":
+    prefix: "infoentries"
     body: '''
+
+      {% set entries = craft.entries.first() %}
+      {% set entries = craft.entries.last() %}
+      {% set entries = craft.entries.nth( n ) %}
+      {% set entries = craft.entries.ids() %}
+      {% set entries = craft.entries.count() %}
+
       {% set entries = craft.entries({
-        section:    '${1:sectionName}',
-        limit:      '${2:10}'
+          id:             id OR 'not id' ,
+          fixedOrder:     true/false,
+          slug:           'slug',
+          uri:            'uri',
+          sectionId:      id,
+          section:        'sectionHandle', [arrayOfSectionHandles], SectionModel
+          authorId:       id,
+          authorGroupId:  id,
+          authorGroup:    id,
+          postDate:       'YYYY,YYYY-MM,YYYY-MM-DD,YYYY-MM-DD HH:MM,YYYY-MM-DD HH:MM:SS',
+          after:          'YYYY,YYYY-MM,YYYY-MM-DD,YYYY-MM-DD HH:MM,YYYY-MM-DD HH:MM:SS',
+          before:         'Unix timestamp,DateTime variable',
+          status:         'live,pending,expired,disabled,null',
+          type:           'entryTypeHandle',
+          archived:       true OR false,
+          offset:         10,
+          level:          2,
+          locale:         'en_us',
+          localeEnabled:  true/false,
+
+          relatedTo:      element, sourceElement, targetElement, field, sourceLocale,
+          ancestorOf:     EntryModel OR id,
+          ancestorDist:   2,
+          descendantOf:   EntryModel OR id,
+          descendantDist: 2,
+          nextSiblingOf:  EntryModel OR id,
+          prevSiblingOf:  EntryModel OR id,
+
+          orderBy:        'title,id,authorId,sectionId,slug,uri,postDate,expiryDate',
+                          'dateCreated asc', 'dateUpdated desc'
+          limit:          10,
+          indexBy:        'id,title',
+
+          search:         'salty dog'           containing both "salty" and "dog"
+                          '"salty dog"'         containing the exact phrase "salty dog"
+                          'salty OR dog'        containing either "salty" or "dog" (or both)
+                          'salty -dog'          containing "salty" but not "dog"
+                          'body:salty'          containing "salty" in the "body" field
+                          'body:salty'          body:dog containing both "salty" and "dog"
+                                                in the "body" field
+                          'body:*'              containing anything within the "body" field
+                          'salty locale:en_us'  containing "salty" in the locale "en_us"
+                          'salt*'               containing a word that begins with "salt"
+                          '*ty'                 containing a word that ends with "ty"
+                          '*alt*'               containing a word that contains "alt"
+
+          Supported syntaxes for childOf, kind, parentOf
+                        elementId
+                        AssetFileModel, EntryModel, UserModel, or TagModel
+                        [ arrayOfModels, arrayOfModels, arrayOfModels ]
+                        [ 1, 2, 3 ]
+                        craft.assets, craft.entries, craft.users, craft.tags
       }).all() %}
 
       {% for entry in entries %}
-        <a href="{{ entry.url }}">{{ entry.title }}</a>
-      {% endfor %}
+          {{ entry.id }}
+          {{ entry.level }}
+          {{ entry.sectionId }}
+          {{ entry.section }}   {# array #}
+          {{ entry.authorId }}
+          {{ entry.author }}    {# array #}
+          {{ entry.locale }}
+          {{ entry.type }}
+          {{ entry.title }}
+          {{ entry.slug }}
+          {{ entry.uri }}
+          {{ entry.url }}       {# full front-end URL #}
+          {{ entry.link }}      {# full <a> tag #}
+          {{ entry.cpEditUrl }}
+
+          {{ entry.enabled }}
+          {{ entry.status }}
+
+          {{ entry.postDate }}
+          {{ entry.expiryDate }}
+          {{ entry.dateCreated }}
+          {{ entry.dateUpdated }}
+
+          {{ entry.getAncestors( distance ) }}
+          {{ entry.getDescendants( distance) }}
+          {{ entry.children }}
+          {{ entry.parent }}
+          {{ entry.hasDescendants }}
+          {{ entry.nextSibling }}
+          {{ entry.prevSibling }}
+          {{ entry.isAncestorOf( entry ) }}
+          {{ entry.isChildOf( entry ) }}
+          {{ entry.isDescendantOf( entry ) }}
+          {{ entry.isNextSiblingOf( entry ) }}
+          {{ entry.isParentOf( entry ) }}
+          {{ entry.isPrevSiblingOf( entry ) }}
+          {{ entry.isSiblingOf( entry ) }}
+
+          {% set prev = entry.getPrev( params ) %}
+          {% set next = entry.getNext( params ) %}
+          {% if prev %} <a href="{{ prev.url }}">{{ prev.title }}</a> {% endif %}
+          {% if next %} <a href="{{ next.url }}">{{ next.title }}</a> {% endif %}
+      {% endfor %}}
       $0
     '''
-  "craft.entries":
-    prefix: "entries"
+  "info: craft.feeds":
+    prefix: "infofeeds"
     body: '''
-      {% for entry in craft.entries
-        .section('${1:sectionName}')
-        .limit(${2:10}).all()
-      %}
-        <a href="{{ entry.url }}">{{ entry.title }}</a>
-      {% endfor %}
-      $0
-    '''
-  feed:
-    prefix: "feed"
-    body: '''
-      {% set feedUrl = "${1:http://feeds.feedburner.com/blogandtonic}" %}
-      {% set limit = ${2:10} %}
-      {% set items = craft.feeds.getFeedItems(feedUrl, limit) %}
+      {# Required #}
+      {% set feedUrl  = "http://feeds.feedburner.com/blogandtonic" %}
+
+      {# Option #}
+      {% set limit = 10 %} {# How many items to return. Default: All #}
+      {% set skip = 0 %}  {# How many items to skip. Default: Zero #}
+
+      {% set items = craft.feeds.getFeedItems( url, limit, offset, cacheDuration ) %}
 
       {% for item in items %}
-          <article>
-              <h3><a href="{{ item.permalink }}">{{ item.title }}</a></h3>
-              <p class="author">{{ item.authors[0].name }}</p>
-              <p class="date">{{ item.date }}</p>
+          {{ title }}
+          {{ summary }}
+          {{ content }}
 
-              {{ item.summary }}
-          </article>
+          {{ date }}
+          {{ dateUpdated }}
+          {{ permalink }}
+
+          {{ authors }}               {# array #}
+          {{ authors[0].name }}
+          {{ authors[0].url }}
+          {{ authors[0].email }}
+
+          {{ contributors }}          {# array #}
+          {{ contributors[0].name }}
+          {{ contributors[0].url }}
+          {{ contributors[0].email }}
+
+          {{ categories }}            {# array #}
+          {{ categories[0].term }}
+          {{ categories[0].scheme }}
+          {{ categories[0].label }}
       {% endfor %}
+      $0
     '''
   "info: craft.fields":
-    prefix: "info"
+    prefix: "infofields"
     body: '''
       {% set body = craft.app.fields.getFieldByHandle('body') %}
       {{ body.instructions }}
     '''
   "info: craft.globals":
-    prefix: "info"
+    prefix: "infoglobals"
     body: '''
       {% set globals = craft.app.globals.allSets %}
       {% set globals = craft.app.globals.editableSets %}
@@ -251,7 +1014,7 @@
       {% set globalSet = craft.app.globals.getSetByHandle(handle, locale) %}
     '''
   "info: craft.sections":
-    prefix: "info"
+    prefix: "infosections"
     body: '''
       {% set sections = craft.app.sections.allSections %}
       {% set sections = craft.app.sections.editableSections %}
@@ -261,7 +1024,7 @@
       {% set section = craft.app.sections.getSectionByHandle(handle) %}
     '''
   "info: craft.session":
-    prefix: "info"
+    prefix: "infosession"
     body: '''
       {% if not craft.app.user.isGuest %}{% endif %}
 
@@ -275,581 +1038,8 @@
 
       {% if craft.app.session.hasFlash() %}{% endif %}
     '''
-  "craft.tags w/ params":
-    prefix: "tagsp"
-    body: '''
-      {% set tags = craft.tags({
-        set:    '${1:setName}'
-      }).all() %}
-
-      <ul>
-      {% for tag in tags %}
-          <li>{{ tag }}</a></li>
-      {% endfor %}
-      </ul>
-      $0
-    '''
-  "craft.tags":
-    prefix: "tags"
-    body: '''
-      <ul>
-      {% for tag in craft.tags
-        .set('${1:setName}').all()
-        %}
-          <li>{{ tag }}</li>
-      {% endfor %}
-      </ul>
-      $0
-    '''
-  "craft.users w/ params":
-    prefix: "usersp"
-    body: '''
-      {% set accounts = craft.users({
-        group:    '${1:groupName}'
-      }).all() %}
-
-      {% for account in accounts %}
-        {{ account.firstName }} {{ account.lastName }}
-      {% endfor %}
-      $0
-    '''
-  "craft.users":
-    prefix: "users"
-    body: '''
-      {% for account in craft.users
-        .group('${1:groupName}').all()
-        %}
-        {{ account.firstName }} {{ account.lastName }}
-      {% endfor %}
-      $0
-    '''
-  dump:
-    prefix: "dump"
-    body: '''
-      <pre>
-        {{ dump($1) }}
-      </pre>
-    '''
-  else:
-    prefix: "else"
-    body: "{% else %}$0"
-  elseif:
-    prefix: "elseif"
-    body: "{% elseif ${1:condition} %}$0"
-  endif:
-    prefix: "endif"
-    body: "{% endif %}$0"
-  endblock:
-    prefix: "endblock"
-    body: "{% endblock %}$0"
-  endfilter:
-    prefix: "endfilter"
-    body: "{% endfilter %}$0"
-  "text.html.twig":
-    prefix: "endfor"
-    body: "{% endfor %}$0"
-  endmacro:
-    prefix: "endmacro"
-    body: "{% endmacro %}$0"
-  endset:
-    prefix: "endset"
-    body: "{% endset %}$0"
-  exit:
-    prefix: "exit"
-    body: "{% exit ${1:404} %}"
-  extends:
-    prefix: "extends"
-    body: "{% extends '${1:template}' %}$0"
-  "filter (block)":
-    prefix: "filterb"
-    body: '''
-      {% filter ${1:name} %}
-          $0
-      {% endfilter %}
-    '''
-  filter:
-    prefix: "filter"
-    body: "{% filter ${1:name} %}$0{% endfilter %}"
-  floor:
-    prefix: "floor"
-    body: "floor($1)$0"
-  "for ... else":
-    prefix: "fore"
-    body: '''
-      {% for ${1:item} in ${2:items} %}
-          $3
-      {% else %}
-          $0
-      {% endfor %}
-    '''
-  for:
-    prefix: "for"
-    body: '''
-      {% for ${1:item} in ${2:items} %}
-          $0
-      {% endfor %}
-    '''
-  if:
-    prefix: "if"
-    body: "{% if ${1:condition} %}$0{% endif %}"
-  "if (block)":
-    prefix: "ifb"
-    body: '''
-      {% if ${1:condition} %}
-          $0
-      {% endif %}
-    '''
-  "if ... else":
-    prefix: "ife"
-    body: '''
-      {% if ${1:condition} %}
-          $2
-      {% else %}
-          $0
-      {% endif %}
-    '''
-  "if ... elseif":
-    prefix: "ifeif"
-    body: '''
-      {% if ${1:condition} %}
-          $2
-      {% elseif ${3:condition} %}
-          $0
-      {% endif %}
-    '''
-  "if ... elseif ... else":
-    prefix: "ifeife"
-    body: '''
-      {% if ${1:condition} %}
-          $2
-      {% elseif ${3:condition} %}
-          $4
-      {% else %}
-          $0
-      {% endif %}
-    '''
-  import:
-    prefix: "import"
-    body: '''
-      {% import '${1:template}' as ${2:key} %}
-    '''
-  "include w/ params":
-    prefix: "incp"
-    body: '''
-      {% include '${1:template}' with {
-        ${2:key}: ${3:'${4:value}'}
-      }} %}
-      $0
-    '''
-  include:
-    prefix: "inc"
-    body: "{% include '${1:template}'${2: with ${3:vars} }%}$0"
-  registerCssFile:
-    prefix: "registerCssFile"
-    body: '''
-      {% do view.registerCssFile(${1:/resources/css/global.css}) %}
-      $0
-    '''
-  includeCss:
-    prefix: "includecss"
-    body: '''
-      {% css %}
-        ${1:/* ${2:CSS here} */}
-        $3
-      {% endcss %}
-      $0
-    '''
-  includeJs:
-    prefix: "includejs"
-    body: '''
-      {% js %}
-        ${1:/* ${2:CSS here} */}
-        $3
-      {% endjs %}
-      $0
-    '''
-  registerJsFile:
-    prefix: "registerJsFile"
-    body: '''
-      {% do view.registerJsFile(${1:/resources/js/global.js}) %}
-      $0
-    '''
-  "info: craft.assets":
-    prefix: "info"
-    body: '''
-
-      {% set assets = craft.assets.first() %}
-      {% set assets = craft.assets.last() %}
-      {% set assets = craft.assets.nth( n ) %}
-      {% set assets = craft.assets.ids() %}
-      {% set assets = craft.assets.count() %}
-
-      {% set assets = craft.assets({
-
-        filename:   'fileName.jpg',
-        fixedOrder: true|false,
-        folderId:   id,
-        height:     200,
-        id:         id,
-        kind:       http://buildwithcraft.com/docs/templating/craft.assets#kind,
-        offset:     1,
-        size:       1000,
-        title:      'title',
-        source:     'assetSourceHandle'
-        sourceId:   id,
-        width:      200,
-
-        relatedTo:      element, sourceElement, targetElement, field, sourceLocale,
-        childOf:        See supported syntaxes below,
-        childField:     'fieldHandle' OR id,
-        parentOf:       See supported syntaxes below,
-        parentField:    'fieldHandle' OR id,
-
-        order:      'title,id,sourceId,folderId,filename,kind,width,height,size,
-                    dateCreated asc,dateUpdated desc',
-                    Also supports any textual field handles
-        limit:      100,
-        locale:     'en_us',
-        indexBy:    'id,title',
-
-        search:     'salty dog'           containing both "salty" and "dog"
-                    '"salty dog"'         containing the exact phrase "salty dog"
-                    'salty OR dog'        containing either "salty" or "dog" (or both)
-                    'salty -dog'          containing "salty" but not "dog"
-                    'body:salty'          containing "salty" in the "body" field
-                    'body:salty'          body:dog containing both "salty" and "dog"
-                                          in the "body" field
-                    'body:*'              containing anything within the "body" field
-                    'salty locale:en_us'  containing "salty" in the locale "en_us"
-                    'salt*'               containing a word that begins with "salt"
-                    '*ty'                 containing a word that ends with "ty"
-                    '*alt*'               containing a word that contains "alt",
-
-        Supported syntaxes for childOf, kind, parentOf
-                    elementId
-                    AssetFileModel, EntryModel, UserModel, or TagModel
-                    [ arrayOfModels, arrayOfModels, arrayOfModels ]
-                    [ 1, 2, 3 ]
-                    craft.assets, craft.entries, craft.users, craft.tags
-      }).all() %}
-
-      {% for asset in assets %}
-
-        {{ asset.dateCreated }}
-        {{ asset.dateUpdated }}
-        {{ asset.extension }}
-        {{ asset.filename }}
-        {{ asset.folder }}
-        {{ asset.folderId }}
-        {{ asset.height }}
-        {{ asset.id }}
-        {{ asset.img }}
-        {{ asset.kind }}
-        {{ asset.locale }}
-        {{ asset.link }}
-        {{ asset.mimeType }}
-        {{ asset.size | filesize }}
-        {{ asset.source }}
-        {{ asset.sourceId }}
-        {{ asset.url }}
-        {{ asset.width }}
-
-        {{ asset.getHeight( transform ) }}
-        {{ asset.getWidth( transform ) }}
-        {{ asset.getUrl( transform ) }}
-        {{ asset.setTransform( transform ) }}
-
-        {% set prev = asset.getPrev( params ) %}
-        {% set next = asset.getNext( params ) %}
-        {% if prev %} <a href="/link-to-prev-asset">{{ prev.title }}</a> {% endif %}
-        {% if next %} <a href="/link-to-next-asset">{{ next.title }}</a> {% endif %}
-
-      {% endfor %}}
-      $0
-    '''
-  "info: craft.categories":
-    prefix: "info"
-    body: '''
-
-      {% set categories = craft.categories.first() %}
-      {% set categories = craft.categories.last() %}
-      {% set categories = craft.categories.nth( n ) %}
-      {% set categories = craft.categories.ids() %}
-      {% set categories = craft.categories.count() %}
-
-      {% set categories = craft.categories({
-        id:             id OR 'not id' ,
-        fixedOrder:     true/false,
-        title:          'title',
-        slug:           'slug',
-        uri:            'uri',
-        group:          'categoryGroupHandle'
-        groupId:        id,
-        status:         'live,pending,expired,disabled,null',
-        offset:         10,
-        level:          2,
-        locale:         'en_us',
-
-        relatedTo:      element, sourceElement, targetElement, field, sourceLocale,
-        ancestorOf:     CategoryModel OR id,
-        ancestorDist:   2,
-        descendantOf:   CategoryModel OR id,
-        descendantDist: 2,
-        nextSiblingOf:  CategoryModel OR id,
-        prevSiblingOf:  CategoryModel OR id,
-
-        order:          'title,id,groupId,slug,uri,
-                         dateCreated asc,dateUpdated desc',
-        limit:          10,
-        indexBy:        'id,title',
-
-        search:         'salty dog'           containing both "salty" and "dog"
-                        '"salty dog"'         containing the exact phrase "salty dog"
-                        'salty OR dog'        containing either "salty" or "dog" (or both)
-                        'salty -dog'          containing "salty" but not "dog"
-                        'body:salty'          containing "salty" in the "body" field
-                        'body:salty'          body:dog containing both "salty" and "dog"
-                                              in the "body" field
-                        'body:*'              containing anything within the "body" field
-                        'salty locale:en_us'  containing "salty" in the locale "en_us"
-                        'salt*'               containing a word that begins with "salt"
-                        '*ty'                 containing a word that ends with "ty"
-                        '*alt*'               containing a word that contains "alt"
-
-      }).all() %}
-
-      {% for category in categories %}
-
-        {{ category.id }}
-        {{ category.level }}
-        {{ category.groupId }}
-        {{ category.group }}   {# array #}
-        {{ category.locale }}
-        {{ category.title }}
-        {{ category.slug }}
-        {{ category.uri }}
-        {{ category.url }}       {# full front-end URL #}
-        {{ category.link }}      {# full <a> tag #}
-        {{ category.cpEditUrl }}
-
-        {{ category.enabled }}
-        {{ category.status }}
-
-        {{ category.dateCreated }}
-        {{ category.dateUpdated }}
-
-        {{ category.getAncestors( distance ) }}
-        {{ category.getDescendants( distance) }}
-        {{ category.children }}
-        {{ category.parent }}
-        {{ category.hasDescendants }}
-        {{ category.nextSibling }}
-        {{ category.prevSibling }}
-        {{ category.isAncestorOf( entry ) }}
-        {{ category.isChildOf( entry ) }}
-        {{ category.isDescendantOf( entry ) }}
-        {{ category.isNextSiblingOf( entry ) }}
-        {{ category.isParentOf( entry ) }}
-        {{ category.isPrevSiblingOf( entry ) }}
-        {{ category.isSiblingOf( entry ) }}
-
-        {% set prev = category.getPrev( params ) %}
-        {% set next = category.getNext( params ) %}
-        {% if prev %} <a href="{{ prev.url }}">{{ prev.title }}</a> {% endif %}
-        {% if next %} <a href="{{ next.url }}">{{ next.title }}</a> {% endif %}
-
-      {% endfor %}}
-      $0
-    '''
-  "info: craft.entries":
-    prefix: "info"
-    body: '''
-
-      {% set entries = craft.entries.first() %}
-      {% set entries = craft.entries.last() %}
-      {% set entries = craft.entries.nth( n ) %}
-      {% set entries = craft.entries.ids() %}
-      {% set entries = craft.entries.count() %}
-
-      {% set entries = craft.entries({
-        id:             id OR 'not id' ,
-        fixedOrder:     true/false,
-        slug:           'slug',
-        uri:            'uri',
-        sectionId:      id,
-        section:        'sectionHandle', [arrayOfSectionHandles], SectionModel
-        authorId:       id,
-        authorGroupId:  id,
-        authorGroup:    id,
-        postDate:       'YYYY,YYYY-MM,YYYY-MM-DD,YYYY-MM-DD HH:MM,YYYY-MM-DD HH:MM:SS',
-        after:          'YYYY,YYYY-MM,YYYY-MM-DD,YYYY-MM-DD HH:MM,YYYY-MM-DD HH:MM:SS',
-        before:         'Unix timestamp,DateTime variable',
-        status:         'live,pending,expired,disabled,null',
-        type:           'entryTypeHandle',
-        archived:       true OR false,
-        offset:         10,
-        level:          2,
-        locale:         'en_us',
-        localeEnabled:  true/false,
-
-        relatedTo:      element, sourceElement, targetElement, field, sourceLocale,
-        ancestorOf:     EntryModel OR id,
-        ancestorDist:   2,
-        descendantOf:   EntryModel OR id,
-        descendantDist: 2,
-        nextSiblingOf:  EntryModel OR id,
-        prevSiblingOf:  EntryModel OR id,
-
-        order:          'title,id,authorId,sectionId,slug,uri,postDate,expiryDate',
-                        'dateCreated asc', 'dateUpdated desc'
-        limit:          10,
-        indexBy:        'id,title',
-
-        search:         'salty dog'           containing both "salty" and "dog"
-                        '"salty dog"'         containing the exact phrase "salty dog"
-                        'salty OR dog'        containing either "salty" or "dog" (or both)
-                        'salty -dog'          containing "salty" but not "dog"
-                        'body:salty'          containing "salty" in the "body" field
-                        'body:salty'          body:dog containing both "salty" and "dog"
-                                              in the "body" field
-                        'body:*'              containing anything within the "body" field
-                        'salty locale:en_us'  containing "salty" in the locale "en_us"
-                        'salt*'               containing a word that begins with "salt"
-                        '*ty'                 containing a word that ends with "ty"
-                        '*alt*'               containing a word that contains "alt"
-
-        Supported syntaxes for childOf, kind, parentOf
-                        elementId
-                        AssetFileModel, EntryModel, UserModel, or TagModel
-                        [ arrayOfModels, arrayOfModels, arrayOfModels ]
-                        [ 1, 2, 3 ]
-                        craft.assets, craft.entries, craft.users, craft.tags
-
-      }).all() %}
-
-      {% for entry in entries %}
-
-        {{ entry.id }}
-        {{ entry.level }}
-        {{ entry.sectionId }}
-        {{ entry.section }}   {# array #}
-        {{ entry.authorId }}
-        {{ entry.author }}    {# array #}
-        {{ entry.locale }}
-        {{ entry.type }}
-        {{ entry.title }}
-        {{ entry.slug }}
-        {{ entry.uri }}
-        {{ entry.url }}       {# full front-end URL #}
-        {{ entry.link }}      {# full <a> tag #}
-        {{ entry.cpEditUrl }}
-
-        {{ entry.enabled }}
-        {{ entry.status }}
-
-        {{ entry.postDate }}
-        {{ entry.expiryDate }}
-        {{ entry.dateCreated }}
-        {{ entry.dateUpdated }}
-
-        {{ entry.getAncestors( distance ) }}
-        {{ entry.getDescendants( distance) }}
-        {{ entry.children }}
-        {{ entry.parent }}
-        {{ entry.hasDescendants }}
-        {{ entry.nextSibling }}
-        {{ entry.prevSibling }}
-        {{ entry.isAncestorOf( entry ) }}
-        {{ entry.isChildOf( entry ) }}
-        {{ entry.isDescendantOf( entry ) }}
-        {{ entry.isNextSiblingOf( entry ) }}
-        {{ entry.isParentOf( entry ) }}
-        {{ entry.isPrevSiblingOf( entry ) }}
-        {{ entry.isSiblingOf( entry ) }}
-
-        {% set prev = entry.getPrev( params ) %}
-        {% set next = entry.getNext( params ) %}
-        {% if prev %} <a href="{{ prev.url }}">{{ prev.title }}</a> {% endif %}
-        {% if next %} <a href="{{ next.url }}">{{ next.title }}</a> {% endif %}
-
-      {% endfor %}}
-      $0
-    '''
-  "info: craft.feeds":
-    prefix: "info"
-    body: '''
-      {# Required #}
-      {% set feedUrl  = "http://feeds.feedburner.com/blogandtonic" %}
-
-      {# Option #}
-      {% set limit    = 10 %} {# How many items to return. Default: All #}
-      {% set skip     = 0 %}  {# How many items to skip.   Default: Zero #}
-
-      {% set items = craft.feeds.getFeedItems( url, limit, offset, cacheDuration ) %}
-
-      {% for item in items %}
-
-        {{ title }}
-        {{ summary }}
-        {{ content }}
-
-        {{ date }}
-        {{ dateUpdated }}
-        {{ permalink }}
-
-        {{ authors }}               {# array #}
-        {{ authors[0].name }}
-        {{ authors[0].url }}
-        {{ authors[0].email }}
-
-        {{ contributors }}          {# array #}
-        {{ contributors[0].name }}
-        {{ contributors[0].url }}
-        {{ contributors[0].email }}
-
-        {{ categories }}            {# array #}
-        {{ categories[0].term }}
-        {{ categories[0].scheme }}
-        {{ categories[0].label }}
-
-      {% endfor %}
-      $0
-    '''
-  "info: craft.app.request":
-    prefix: "info"
-    body: '''
-      {# Properties #}
-      {{ craft.app.request.isAjax }}
-      {{ craft.app.request.isLivePreview }}
-      {{ craft.app.request.isSecure }}
-
-      {{ craft.app.request.path }}
-      {{ craft.app.request.url }}
-      {{ craft.app.request.urlReferrer }}
-      {{ craft.app.request.pageNum }}
-
-      {{ craft.app.request.queryString }}
-      {{ craft.app.request.queryStringWithoutPath }}
-      {{ craft.app.request.segments }}   {# array #}
-
-      {{ craft.app.request.firstSegment }}
-      {{ craft.app.request.lastSegment }}
-
-      {{ craft.app.request.serverName }}
-
-      {# Methods #}
-      {{ craft.app.request.isMobileBrowser() }}
-
-      {{ craft.app.request.getSegment( n ) }}
-      {{ craft.app.request.getCookie( name ) }}
-      {{ craft.app.request.getParam( name ) }}  {# Returns a parameter from either the query string or POST data. #}
-      {{ craft.app.request.getQuery( name ) }}  {# Returns a parameter from the query string. #}
-      {{ craft.app.request.getPost( name ) }}   {# Returns a parameter from the POST data. #}
-
-      $0
-    '''
   "info: craft.tags":
-    prefix: "info"
+    prefix: "infotags"
     body: '''
 
       {% set tags = craft.tags.first() %}
@@ -859,60 +1049,57 @@
       {% set tags = craft.tags.count() %}
 
       {% set tags = craft.tags({
-        id:             id OR 'not id' ,
-        fixedOrder:     true|false,
-        title:          'title',
-        group:          'tagGroupHandle',
-        groupId:        id,
-        offset:         2,
+          id:             id OR 'not id' ,
+          fixedOrder:     true|false,
+          title:          'title',
+          group:          'tagGroupHandle',
+          groupId:        id,
+          offset:         2,
 
-        relatedTo:  element, sourceElement, targetElement, field, sourceLocale,
+          relatedTo:  element, sourceElement, targetElement, field, sourceLocale,
 
-        order:          'title,id,groupId,dateCreated asc,dateUpdated desc',
-        limit:          10,
-        locale:         'en_us',
-        indexBy:        'id,title',
+          orderBy:        'title,id,groupId,dateCreated asc,dateUpdated desc',
+          limit:          10,
+          locale:         'en_us',
+          indexBy:        'id,title',
 
-        search:         'salty dog'           containing both "salty" and "dog"
-                        '"salty dog"'         containing the exact phrase "salty dog"
-                        'salty OR dog'        containing either "salty" or "dog" (or both)
-                        'salty -dog'          containing "salty" but not "dog"
-                        'body:salty'          containing "salty" in the "body" field
-                        'body:salty'          body:dog containing both "salty" and "dog"
-                                              in the "body" field
-                        'body:*'              containing anything within the "body" field
-                        'salty locale:en_us'  containing "salty" in the locale "en_us"
-                        'salt*'               containing a word that begins with "salt"
-                        '*ty'                 containing a word that ends with "ty"
-                        '*alt*'               containing a word that contains "alt"
+          search:         'salty dog'           containing both "salty" and "dog"
+                          '"salty dog"'         containing the exact phrase "salty dog"
+                          'salty OR dog'        containing either "salty" or "dog" (or both)
+                          'salty -dog'          containing "salty" but not "dog"
+                          'body:salty'          containing "salty" in the "body" field
+                          'body:salty'          body:dog containing both "salty" and "dog"
+                                                in the "body" field
+                          'body:*'              containing anything within the "body" field
+                          'salty locale:en_us'  containing "salty" in the locale "en_us"
+                          'salt*'               containing a word that begins with "salt"
+                          '*ty'                 containing a word that ends with "ty"
+                          '*alt*'               containing a word that contains "alt"
 
-        Supported syntaxes for childOf, kind, parentOf
+          Supported syntaxes for childOf, kind, parentOf
                         elementId
                         AssetFileModel, EntryModel, UserModel, or TagModel
                         [ arrayOfModels, arrayOfModels, arrayOfModels ]
                         [ 1, 2, 3 ]
                         craft.assets, craft.entries, craft.users, craft.tags
-
       }).all %}
 
       {% for tag in tags %}
+          {{ tag.id }}
+          {{ tag.title }}
+          {{ tag.group }}
+          {{ tag.groupId }}
+          {{ tag.locale }}
 
-        {{ tag.id }}
-        {{ tag.title }}
-        {{ tag.group }}
-        {{ tag.groupId }}
-        {{ tag.locale }}
-
-        {% set prev = tag.getPrev( params ) %}
-        {% set next = tag.getNext( params ) %}
-        {% if prev %} <a href="/link-to-prev-tag">{{ prev.name }}</a> {% endif %}
-        {% if next %} <a href="/link-to-next-tag">{{ next.name }}</a> {% endif %}
-
+          {% set prev = tag.getPrev( params ) %}
+          {% set next = tag.getNext( params ) %}
+          {% if prev %} <a href="/link-to-prev-tag">{{ prev.name }}</a> {% endif %}
+          {% if next %} <a href="/link-to-next-tag">{{ next.name }}</a> {% endif %}
       {% endfor %}}
       $0
     '''
   "info: craft.users":
-    prefix: "info"
+    prefix: "infousers"
     body: '''
 
       {% set users = craft.users.first() %}
@@ -938,8 +1125,8 @@
 
         relatedTo:  element, sourceElement, targetElement, field, sourceLocale,
 
-        order:      'username,firstName,lastName,email,preferredLocale,status,lastLoginDate,
-                     dateCreated asc,dateUpdated desc',
+        orderBy:      'username,firstName,lastName,email,preferredLocale,status,lastLoginDate,
+                      dateCreated asc,dateUpdated desc',
         limit:      number,
         indexBy:    'id,username'
 
@@ -955,294 +1142,40 @@
                     'salt*'               containing a word that begins with "salt"
                     '*ty'                 containing a word that ends with "ty"
                     '*alt*'               containing a word that contains "alt",
-
       }).all() %}
 
       {% for user in users %}
+          {{ user.id }}
+          {{ user.username }}
+          {{ user.name }}
+          {{ user.firstName }}
+          {{ user.lastName }}
+          {{ user.fullName }}
+          {{ user.friendlyName }}    {# falls back to username #}
+          {{ user.email }}
 
-        {{ user.id }}
-        {{ user.username }}
-        {{ user.name }}
-        {{ user.firstName }}
-        {{ user.lastName }}
-        {{ user.fullName }}
-        {{ user.friendlyName }}    {# falls back to username #}
-        {{ user.email }}
+          {{ user.preferredLocale }}
+          {{ user.admin }}           {# true,false #}
+          {{ user.status }}          {# active, locked, suspended, pending, archived #}
+          {{ user.isCurrent }}       {# is currently logged in #}
 
-        {{ user.preferredLocale }}
-        {{ user.admin }}           {# true,false #}
-        {{ user.status }}          {# active, locked, suspended, pending, archived #}
-        {{ user.isCurrent }}       {# is currently logged in #}
+          {{ user.lastLoginDate }}
+          {{ user.dateCreated }}
+          {{ user.dateUpdated }}
 
-        {{ user.lastLoginDate }}
-        {{ user.dateCreated }}
-        {{ user.dateUpdated }}
+          {{ user.getChildren( fields ) }}
+          {{ user.getParents( fields ) }}
 
-        {{ user.getChildren( fields ) }}
-        {{ user.getParents( fields ) }}
+          {{ user.getGroups() }}
+          {{ user.isInGroup( groupHandle OR groupId OR UserGroupModel ) }}
+          {{ user.getPhotoUrl( size ) }}
+          {{ user.isCurrent() }}
+          {{ user.can( 'permission' ) }}
 
-        {{ user.getGroups() }}
-        {{ user.isInGroup( groupHandle OR groupId OR UserGroupModel ) }}
-        {{ user.getPhotoUrl( size ) }}
-        {{ user.isCurrent() }}
-        {{ user.can( 'permission' ) }}
-
-        {% set prev = user.getPrev( params ) %}
-        {% set next = user.getNext( params ) %}
-        {% if prev %} <a href="/link-to-prev-user">{{ prev.username }}</a> {% endif %}
-        {% if next %} <a href="/link-to-next-user">{{ next.username }}</a> {% endif %}
-
+          {% set prev = user.getPrev( params ) %}
+          {% set next = user.getNext( params ) %}
+          {% if prev %} <a href="/link-to-prev-user">{{ prev.username }}</a> {% endif %}
+          {% if next %} <a href="/link-to-next-user">{{ next.username }}</a> {% endif %}
       {% endfor %}}
       $0
     '''
-  macro:
-    prefix: "macro"
-    body: '''
-      {% macro ${1:name}(${2:param}) %}
-        $0
-      {% endmacro %}
-    '''
-  matrix:
-    prefix: "matrix"
-    body: '''
-      {% for block in ${1:entry.matrixFieldHandle} %}
-
-        {% if block.type == '${2:blockHandle}' %}
-          {{ block.${3:fieldHandle} }}
-        {% endif %}
-
-        {% if block.type == '${4:blockHandle}' %}
-          {{ block.${5:fieldHandle} }}
-        {% endif %}
-
-      {% endfor %}
-      $0
-    '''
-  max:
-    prefix: "max"
-    body: "max(${1:$2, $3})$0"
-  min:
-    prefix: "min"
-    body: "min(${1:$2, $3})$0"
-  "paginate simple":
-    prefix: "paginate"
-    body: '''
-      {% paginate craft.entries.section('blog').limit(10) as entries %}
-
-          {% for entry in entries %}
-              <article>
-                  <h1>{{ entry.title }}</h1>
-                  {{ entry.body }}
-              </article>
-          {% endfor %}
-
-          {% if paginate.prevUrl %}
-              <a href="{{ paginate.prevUrl }}">Previous Page</a>
-          {% endif %}
-
-          {% if paginate.nextUrl %}
-              <a href="{{ paginate.nextUrl }}">Next Page</a>
-          {% endif %}
-
-      {% endpaginate %}
-      $0
-    '''
-  "paginate advanced":
-    prefix: "paginate"
-    body: '''
-      {# PAGINATION
-
-      For this pagination to work properly, we need to be sure to set
-      the paginateBase variable in the template we are including the
-      pagination in.
-
-      {% set paginateBase = "/blog/p" %}
-      #}
-
-      {% if paginate.totalPages > 1 %}
-      <ul>
-          {% if paginate.currentPage != "1"  %}
-              <li><a href="{{ paginateBase ~ '1' }}">First Page</a></li>
-          {% endif %}
-
-          {% if paginate.prevUrl %}
-              <li><a href="{{ paginate.prevUrl }}">Previous Page</a></li>
-          {% endif %}
-
-          {% for pageNumber in 1..paginate.totalPages %}
-              <li {% if paginate.currentPage == pageNumber %}class="active-page"{% endif %}>
-                  <a href="{{ paginateBase ~ pageNumber }}">{{ pageNumber }}</a>
-              </li>
-          {% endfor %}
-
-          {% if paginate.nextUrl %}
-              <li><a href="{{ paginate.nextUrl }}">Next Page</a></li>
-          {% endif %}
-
-          {% if paginate.currentPage != paginate.total %}
-              <li><a href="{{ paginateBase ~ paginate.total }}">Last Page</a></li>
-          {% endif %}
-      </ul>
-      {% endif %}
-      $0
-    '''
-  redirect:
-    prefix: "redirect"
-    body: '''
-      {% redirect '${1:template/path or https://craftcms.com/}' %}
-      $0
-    '''
-  "request getParam":
-    prefix: "getparam"
-    body: '''
-      craft.app.request.getParam(${1:'Query String or Post Variable Name'})
-      $0
-    '''
-  "request getPost":
-    prefix: "getpost"
-    body: '''
-      craft.app.request.getPost(${1:'postVariableName'})
-      $0
-    '''
-  "request getQuery":
-    prefix: "getquery"
-    body: '''
-      craft.app.request.getQuery(${1:'queryStringName'})
-      $0
-    '''
-  "request getSegment":
-    prefix: "getsegment"
-    body: '''
-      craft.app.request.getSegment(${1:2})
-      $0
-    '''
-  requirePermission:
-    prefix: "requirepermission"
-    body: '''
-      {% requirePermission "${1:spendTheNight}" %}
-      $0
-    '''
-  round:
-    prefix: "round"
-    body: "54|round$0"
-  "set (block)":
-    prefix: "setb"
-    body: '''
-      {% set ${1:var} %}
-          $0
-      {% endset %}
-    '''
-  set:
-    prefix: "set"
-    body: "{% set ${1:var} = ${2:value} %}$0"
-  shuffle:
-    prefix: "shuffle"
-    body: "shuffle($1)$0"
-  switch:
-    prefix: "switch"
-    body: '''
-      {% switch ${1:variable} %}
-
-        {% case "${2:value1}" %}
-
-
-        {% case "${3:value2}" %}
-
-
-        {% default %}
-
-
-      {% endswitch %}
-      $0
-    '''
-  "{% ... %}":
-    prefix: "%%"
-    body: "{% $1 %}$2"
-  "{# ... #}":
-    prefix: "##"
-    body: "{# $1 #}$2"
-  "{{ ... }}":
-    prefix: "}}"
-    body: "{{ $1 }}$2"
-  "info: globals":
-    prefix: "info"
-    body: '''
-
-      SITE
-      {{ siteName }}
-      {{ siteUrl }}
-      {{ loginUrl }}
-      {{ logoutUrl }}
-
-      DATE
-      {{ now|date('Y') }}
-      {{ now|date('M') }}
-      {{ now|date('d') }}
-      {{ now|date("d M Y") }}
-      {{ now|date_modify("+1 day") }}
-
-      USERS
-      {{ currentUser }}  {# null if no user is logged in #}
-      {{ currentUser.id }}
-      {{ currentUser.username }}
-      {{ currentUser.firstName }}
-      {{ currentUser.lastName }}
-      {{ currentUser.friendlyName }}
-      {{ currentUser.email }}
-      {{ currentUser.preferredLocale }}
-      {{ currentUser.admin }}
-      {{ currentUser.status }}  {# active, locked, suspended, pending, archived #}
-      {{ currentUser.lastLoginDate }}
-      {{ currentUser.dateCreated }}
-      {{ currentUser.dateUpdated }}
-
-      {{ currentUser.getChildren() }}
-      {{ currentUser.getParents() }}
-
-      {% set params = { group: 'authors', order: 'firstName, lastName' } %}
-      {{ currentUser.getNext( params ) }}
-      {{ currentUser.getPrev( params ) }}
-
-      GLOBALS
-      {{ globalSetName.fieldName }}
-
-      TAGS
-      {{ craft.assets }}
-      {{ craft.categories }}
-      {{ craft.entries }}
-      {{ craft.tags }}
-      {{ craft.user }}
-
-      {{ craft.app.config }}
-      {{ craft.app.feeds }}
-      {{ craft.app.fields }}
-      {{ craft.app.globals }}
-      {{ craft.app.request }}
-      {{ craft.app.sections }}
-      {{ craft.app.user }}
-
-      $0
-    '''
-  csrf:
-    prefix: "csrf"
-    body: '''
-      {{ csrfInput() }}
-      $0
-    '''
-  "url w/ arguments":
-    prefix: "urla"
-    body: "url('${1:path}', ${2:{foo:'1', bar:'2'\\}}, ${3:'http'}, ${4:false})$0"
-  url:
-    prefix: "url"
-    body: "url('${1:path}')$0"
-".test.html.twig":
-  requireLogin:
-    prefix: "requirelogin"
-    body: '''
-      {% requireLogin %}
-      $0
-    '''
-".source.php":
-  "dump and die":
-    prefix: "dd"
-    body: "Craft::dd($1);"
