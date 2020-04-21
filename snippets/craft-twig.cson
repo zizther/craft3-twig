@@ -24,7 +24,7 @@
     body: '''
       {% include '${1:template}' with {
           ${2:key}: ${3:'${4:value}'}
-      }} %}
+      } %}
       $0
     '''
   set:
