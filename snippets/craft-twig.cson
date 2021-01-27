@@ -294,7 +294,7 @@
         prefix: "includejs"
         body: '''
         {% js %}
-            ${1:/* ${2:CSS here} */}
+            ${1:/* ${2:JS here} */}
             $3
         {% endjs %}
         $0
