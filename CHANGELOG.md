@@ -1,8 +1,6 @@
 ## 1.0.0
 ### Added
-- Added latest Twig 2 & Craft 3 functions to grammar
-- Added latest Twig 2 & Craft 3 filters to grammar
-- Added latest Twig 2 & Craft 3 tags to grammar
+- Added latest Twig 2 & Craft 3 functions, filters and tags to package grammar
 
 ### Fixed
 - Spacing issues
