@@ -1,3 +1,16 @@
+## 1.0.0
+### Added
+- Added latest Twig 2 & Craft 3 functions to grammar
+- Added latest Twig 2 & Craft 3 filters to grammar
+- Added latest Twig 2 & Craft 3 tags to grammar
+
+### Fixed
+- Spacing issues
+- Comment updates
+
+### Changed
+- Released 1.0.0 to work with semver
+
 ## 0.1.8
 ### Fixed
 - Fixed duplicate closing `}` on incp snippet
