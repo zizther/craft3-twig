@@ -16,6 +16,11 @@
         body: '''
         {% import '${1:template}' as ${2:key} %}
         '''
+    "from import":
+        prefix: "from"
+        body: '''
+        {% from '${1:template}' import ${2:key} %}
+        '''
     include:
         prefix: "inc"
         body: "{% include '${1:template}' %}$0"
@@ -432,15 +437,11 @@
         prefix: "switch"
         body: '''
         {% switch ${1:variable} %}
-
             {% case "${2:value1}" %}
-
 
             {% case "${3:value2}" %}
 
-
             {% default %}
-
 
         {% endswitch %}
         $0
@@ -449,9 +450,7 @@
         prefix: "case"
         body: '''
         {% case ${1:variable} %}
-
             $0
-
         '''
     shuffle:
         prefix: "shuffle"
@@ -462,8 +461,8 @@
     "url w/ arguments":
         prefix: "urla"
         body: "url('${1:path}', ${2:{foo:'1', bar:'2'\\}}, ${3:'http'}, ${4:false})$0"
-    ciel:
-        prefix: "ciel"
+    ceil:
+        prefix: "ceil"
         body: "ceil($1)$0"
     floor:
         prefix: "floor"
@@ -540,7 +539,7 @@
         body: '''
         {# Properties #}
         {{ craft.app.request.isAjax }}
-        {{ craft.app.request.isLivePreview }}
+        {{ craft.app.request.isPreview }}
         {{ craft.app.request.isSecure }}
 
         {{ craft.app.request.path }}
