@@ -12,6 +12,7 @@ A port from [BarrelStrength Craft-Twig.tmbundle](https://github.com/BarrelStreng
 
     extends         {% extends 'template' %}
     import          {% import 'template' as key %}
+    from            {% from 'template' import key %}
     inc             {% include 'template' %}
     incp            {% include 'template' with {
                         key: 'value'
@@ -82,7 +83,7 @@ A port from [BarrelStrength Craft-Twig.tmbundle](https://github.com/BarrelStreng
     shuffle            shuffle()
     url, urla          url('path'), url('path', params, 'http', false)
 
-    ciel               ceil()
+    ceil               ceil()
     floor              floor()
     max                max()
     min                min()
